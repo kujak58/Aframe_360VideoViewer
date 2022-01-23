@@ -17,10 +17,10 @@
   <body>
     <a-scene>  
         <a-entity id="camera-wrapper" position="0 0 0" rotation="0 0 0">
-            <a-camera id="camera" near="0.01" far="10000" fov="80" zoom="1" position="0 0 0" reverse-mouse-drag = "false" look-controls = "touchEnabled: false" wasd-controls-enabled = "false"></a-camera>
+            <a-camera id="camera" near="0.01" far="10000" fov="80" zoom="1" position="0 0 0" reverse-mouse-drag = "true" look-controls wasd-controls-enabled = "false"></a-camera>
         </a-entity>
-        <video id="video" playsinline preload="auto" muted loop="true" src="insta360-one-x-sample.mp4"></video>
-        <a-videosphere id="videosphere" src="#video" scale="1 1 1"></a-videosphere>
+        <video id="video" preload="auto" muted loop="true" src="insta360-one-x-sample.mp4"></video>
+        <a-videosphere id="videosphere" src="#video"></a-videosphere>
     </a-scene>
     <button id="capture">キャプチャー</button>
     <a href="" id="download" download="canvas.png">link</a>
