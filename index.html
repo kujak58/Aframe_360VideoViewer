@@ -8,25 +8,77 @@
     <meta charset="utf-8">
     <title>360&deg; Image</title>
     <meta name="description" content="A-Frame Panorama Sample">
-    <script src="dist/aframe-master.min.js"></script>
+    <script src="dist/aframe-master.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.0/dist/aframe-extras.min.js"></script>
+    <script src="https://cdn.rawgit.com/mrturck/aframe-joystick/master/joystick.min.js"></script>
     <script src="http://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
   </head>
   <body>
-    <a-scene embedded wasd-controls-enabled="true">
-        <a-assets>
-            <video id="video" preload="auto" muted loop="true" src="insta360-one-x-sample.mp4">
-        </a-assets>
+    <a-scene>  
+        <a-entity id="camera-wrapper" position="0 1 0" rotation="0 0 0">
+            <a-camera id="camera" near="0.01" far="10000" fov="40"  position="0 0 0" reverse-mouse-drag = "false" look-controls = "false" wasd-controls></a-camera>
+        </a-entity>
+        <video id="video" preload="auto" muted loop="true" src="insta360-one-x-sample.mp4"></video>
         <a-videosphere id="videosphere" src="#video"></a-videosphere>
+        <!-- <a-entity movement-controls="fly: true">
+            <a-entity camera position="0 1.6 0" look-controls></a-entity>
+        </a-entity> -->
+        
     </a-scene>
     <button id="capture">キャプチャー</button>
     <canvas id="canvas"></canvas>
   </body>
 
+
+  
 <!-- 以下はVR開始ボタンで動画を再生するためのJavascript -->
 <script>
+    // var controlledEl = document.querySelector('[keyboard-controls]');
+    // var labelEl = document.querySelector('[data-bind=mode]');
+
+    //   var modes = ['default', 'fly', 'fps'];
+    //   var labels = ['Default', 'Fly', 'FPS'];
+    //   var modeIndex = 0;
+    // controlledEl.addEventListener('keyup:Space', function () {
+    //     modeIndex = (modeIndex + 1) % modes.length;
+    //     controlledEl.setAttribute('keyboard-controls', 'mode', modes[modeIndex]);
+    //     labelEl.innerHTML = labels[modeIndex];
+    //   });
+    let cameraWrapper = document.getElementById("camera-wrapper");
+    let camera = document.getElementById("camera");
+
     var scene = document.querySelector("a-scene");
         // 参考：https://blog.engineer.adways.net/entry/2017/02/24/160000
         // キャプチャーボタン
+        var degx = 0.0
+        var degy = 0.0
+
+        $(document).keydown(function(e) {
+            console.log(e.keyCode)
+            const cameraRotation = camera.getAttribute("rotation")
+            
+            switch (e.keyCode) {
+                case 87:
+                    // Key: W
+                    degx += 0.005;
+                    break;
+                case 65:
+                    // Key: A
+                    degy += 0.005;
+                    break;
+                case 83:
+                    // Key: S
+                    degx -= 0.005;
+                    break;
+                case 68:
+                    // Key: D
+                    degy -= 0.005;     
+                    break;
+            }
+            camera.components["look-controls"].pitchObject.rotation.x = degx;
+            camera.components["look-controls"].yawObject.rotation.y = degy;
+        });
+
         $('#capture').on('click', function(){
             // Screenshot用のcanvasを取得 (360度映像'equirectangular' or 視点映像'perspective')
             var video = document.querySelector('a-scene').components.screenshot.getCanvas('perspective');
