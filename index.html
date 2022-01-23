@@ -1,0 +1,55 @@
+
+<!-- CORSエラーの回避
+    方法1：ローカルサーバーを立てる（動画再生困難）：https://qiita.com/terufumi1122/items/39b2a3659bc585c07f64
+    方法2：Chromeのクロスドメイン制約を回避（セキュリティに若干の問題）：https://qiita.com/shika-e/items/808ccdd047133315b95c
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>360&deg; Image</title>
+    <meta name="description" content="A-Frame Panorama Sample">
+    <script src="dist/aframe-master.min.js"></script>
+    <script src="http://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <a-scene embedded wasd-controls-enabled="true">
+        <a-assets>
+            <video id="video" preload="auto" muted loop="true" src="insta360-one-x-sample.mp4">
+        </a-assets>
+        <a-videosphere id="videosphere" src="#video"></a-videosphere>
+    </a-scene>
+    <button id="capture">キャプチャー</button>
+    <canvas id="canvas"></canvas>
+  </body>
+
+<!-- 以下はVR開始ボタンで動画を再生するためのJavascript -->
+<script>
+    var scene = document.querySelector("a-scene");
+        // 参考：https://blog.engineer.adways.net/entry/2017/02/24/160000
+        // キャプチャーボタン
+        $('#capture').on('click', function(){
+            // Screenshot用のcanvasを取得 (360度映像'equirectangular' or 視点映像'perspective')
+            var video = document.querySelector('a-scene').components.screenshot.getCanvas('perspective');
+
+            var $canvas = $('#canvas');
+            $canvas.attr('width', 1920);
+            $canvas.attr('height', 1080);
+            $canvas[0].getContext('2d').drawImage(video, 0, 0, $canvas.width(), $canvas.height());
+        });
+        if (scene.hasLoaded) {
+            run();
+        } else {
+            scene.addEventListener("loaded", playvideo);
+        }
+
+        function playvideo() {
+            scene.querySelector(".a-enter-vr-button").addEventListener("click", function (e) {
+                video.play();
+            }, false);
+        }
+</script>
+
+</html>
+
+
+</html>
