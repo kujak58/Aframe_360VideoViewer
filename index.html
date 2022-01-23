@@ -2,54 +2,112 @@
 <!-- CORSエラーの回避
     方法1：ローカルサーバーを立てる（動画再生困難）：https://qiita.com/terufumi1122/items/39b2a3659bc585c07f64
     方法2：Chromeのクロスドメイン制約を回避（セキュリティに若干の問題）：https://qiita.com/shika-e/items/808ccdd047133315b95c
+    ## "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --disable-web-security --user-data-dir="C://Chrome dev session"
 -->
 <html>
   <head>
     <meta charset="utf-8">
     <title>360&deg; Image</title>
     <meta name="description" content="A-Frame Panorama Sample">
-    <script src="dist/aframe-master.min.js"></script>
+    <script src="dist/aframe-master.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.0/dist/aframe-extras.min.js"></script>
+    <script src="https://cdn.rawgit.com/mrturck/aframe-joystick/master/joystick.min.js"></script>
     <script src="http://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
   </head>
   <body>
-    <a-scene embedded wasd-controls-enabled="true">
-        <a-assets>
-            <video id="video" preload="auto" muted loop="true" src="insta360-one-x-sample.mp4">
-        </a-assets>
+    <a-scene>  
+        <a-entity id="camera-wrapper" position="0 0 0" rotation="0 0 0">
+            <a-camera id="camera" near="0.01" far="10000" fov="80" zoom="1" position="0 0 0" reverse-mouse-drag = "true" look-controls wasd-controls-enabled = "false"></a-camera>
+        </a-entity>
+        <video id="video" preload="auto" muted loop="true" src="insta360-one-x-sample.mp4"></video>
         <a-videosphere id="videosphere" src="#video"></a-videosphere>
     </a-scene>
     <button id="capture">キャプチャー</button>
+    <a href="" id="download" download="canvas.png">link</a>
     <canvas id="canvas"></canvas>
   </body>
-
-<!-- 以下はVR開始ボタンで動画を再生するためのJavascript -->
+  
+<!-- Javascript -->
 <script>
+    let cameraWrapper = document.getElementById("camera-wrapper");
+    let camera = document.getElementById("camera");
+    let vsphere = document.getElementById("videosphere");
     var scene = document.querySelector("a-scene");
-        // 参考：https://blog.engineer.adways.net/entry/2017/02/24/160000
-        // キャプチャーボタン
-        $('#capture').on('click', function(){
-            // Screenshot用のcanvasを取得 (360度映像'equirectangular' or 視点映像'perspective')
-            var video = document.querySelector('a-scene').components.screenshot.getCanvas('perspective');
+        
+    // キャプチャーボタン
+    var degx = 0.0
+    var degy = 0.0
+    var zoom_val = 1.0
 
-            var $canvas = $('#canvas');
-            $canvas.attr('width', 1920);
-            $canvas.attr('height', 1080);
-            $canvas[0].getContext('2d').drawImage(video, 0, 0, $canvas.width(), $canvas.height());
-        });
-        if (scene.hasLoaded) {
-            run();
-        } else {
-            scene.addEventListener("loaded", playvideo);
-        }
+    // Key Intraction
+    $(document).keydown(function(e) {
+        console.log(e.keyCode)
+        const cameraPosition = camera.getAttribute("position")
+        const cameraRotation = camera.getAttribute("rotation")
+        console.log(cameraPosition)
+        console.log(cameraRotation)
 
-        function playvideo() {
-            scene.querySelector(".a-enter-vr-button").addEventListener("click", function (e) {
-                video.play();
-            }, false);
+        switch (e.keyCode) {
+            // Move： https://bagelee.com/programming/javascript-2/javascripta-frame-camera/
+            case 87:
+                // Key: W
+                degx += 0.01;
+                break;
+            case 65:
+                // Key: A
+                degy += 0.01;
+                break;
+            case 83:
+                // Key: S
+                degx -= 0.01;
+                break;
+            case 68:
+                // Key: D
+                degy -= 0.01;     
+                break;
+            // Zoom： https://stackoverflow.com/questions/44459356/a-frame-zoom-on-wheel-scroll
+            case 90:
+                // Key: Z
+                zoom_val += 0.5;
+                break;
+            case 88:
+                // Key: X
+                zoom_val -= 0.5;
+                break;
+            case 82:
+                // Key: R
+                degx = 0.0
+                degy = 0.0
+                zoom_val = 1.0
+                break;
+            // Save： https://blog.engineer.adways.net/entry/2017/02/24/160000
+            case 13:
+                // Key: Enter
+                // Screenshot用のcanvasを取得 (360度映像'equirectangular' or 視点映像'perspective')
+                var perspective_video = document.querySelector('a-scene').components.screenshot.getCanvas('perspective');
+                var $canvas = $('#canvas');
+                $canvas.attr('width', 1920);
+                $canvas.attr('height', 1080);
+                $canvas[0].getContext('2d').drawImage(perspective_video, 0, 0, $canvas.width(), $canvas.height());
+                // 保存部分：https://qiita.com/iwaimagic/items/1d16a721b36f04e91aed
+                let link = document.createElement("a");
+                link.href = $canvas[0].toDataURL('image/png');
+                link.download = "perspective_image.png";
+                link.click();
+                break;
         }
+        zoom_val = Math.min(Math.max(zoom_val, 1), 5); // 1-5に制限
+        camera.components["look-controls"].pitchObject.rotation.x = degx;
+        camera.components["look-controls"].yawObject.rotation.y = degy;
+        camera.setAttribute('camera', 'zoom', zoom_val)
+    });
+
+    if (scene.hasLoaded) {
+        run();
+    } else {
+        video.play();
+    }
+
 </script>
-
-</html>
-
 
 </html>
