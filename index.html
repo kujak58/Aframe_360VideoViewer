@@ -7,23 +7,20 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>360&deg; Image</title>
-    <meta name="description" content="A-Frame Panorama Sample">
+    <title>360&deg; Video Viewver</title>
+    <meta name="description" content="A-frame 360 Video Viewer">
     <script src="dist/aframe-master.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.0/dist/aframe-extras.min.js"></script>
-    <script src="https://cdn.rawgit.com/mrturck/aframe-joystick/master/joystick.min.js"></script>
-    <script src="http://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="http://code.jquery.com/jquery-3.1.1.min.js"></script>
   </head>
   <body>
     <a-scene>  
         <a-entity id="camera-wrapper" position="0 0 0" rotation="0 0 0">
             <a-camera id="camera" near="0.01" far="10000" fov="80" zoom="1" position="0 0 0" reverse-mouse-drag = "true" look-controls wasd-controls-enabled = "false"></a-camera>
         </a-entity>
-        <video id="video" preload="auto" muted loop="true" src="insta360-one-x-sample.mp4"></video>
+        <video id="video" preload="auto" muted loop="true" src="video.mp4"></video>
         <a-videosphere id="videosphere" src="#video"></a-videosphere>
     </a-scene>
-    <button id="capture">キャプチャー</button>
-    <a href="" id="download" download="canvas.png">link</a>
     <canvas id="canvas"></canvas>
   </body>
   
